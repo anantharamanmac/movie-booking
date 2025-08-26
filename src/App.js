@@ -34,7 +34,7 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/movies" element={<Movies />} />
           <Route path="/movies/:id" element={<MovieDetails />} /> {/* movie details page */}
-          <Route path="/booking/:id" element={<Booking />} />
+          <Route path="/booking/:movieId" element={<Booking />} /> {/* fixed route parameter */}
           <Route path="/confirmation" element={<Confirmation />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
@@ -59,6 +59,7 @@ function AppContent() {
     </div>
   );
 }
+
 
 function App() {
   return (

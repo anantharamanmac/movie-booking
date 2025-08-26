@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SeatSelector from "../components/SeatSelector";
 import Toast from "../components/Toast";
 import axios from "axios";
@@ -12,6 +12,8 @@ export default function Booking() {
   const [toastMessage, setToastMessage] = useState("");
 
   const showTimings = ["10:00 AM", "01:00 PM", "04:00 PM", "07:00 PM", "10:00 PM"];
+  
+  // Initialize bookedSeats state
   const [bookedSeats, setBookedSeats] = useState({
     "10:00 AM": [],
     "01:00 PM": [],
@@ -20,41 +22,71 @@ export default function Booking() {
     "10:00 PM": [],
   });
 
-  // Generate next 5 dates
+  console.log("movieId:", movieId); // DEBUG
+
   const next5Dates = Array.from({ length: 5 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() + i);
     return d;
   });
 
+  // Fetch booked seats from backend on mount or movieId change
+  useEffect(() => {
+    const fetchBookedSeats = async () => {
+      if (!movieId) return;
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/bookings/${movieId}`);
+        const seatsByTime = { "10:00 AM": [], "01:00 PM": [], "04:00 PM": [], "07:00 PM": [], "10:00 PM": [] };
+        
+        res.data.forEach(booking => {
+          const time = booking.showtime.time;
+          if (seatsByTime[time]) {
+            seatsByTime[time] = [...seatsByTime[time], ...booking.seats];
+          }
+        });
+
+        setBookedSeats(seatsByTime);
+      } catch (err) {
+        console.error("Failed to fetch booked seats:", err.response?.data || err.message);
+      }
+    };
+
+    fetchBookedSeats();
+  }, [movieId]);
+
   const handleBooking = async () => {
+    if (!movieId) {
+      setToastMessage("Movie ID is missing!");
+      return;
+    }
     if (!selectedTime || !selectedSeats.length || !selectedDate) {
-      setToastMessage("Please select a date, show timing and seats!");
+      setToastMessage("Please select a date, show timing, and seats!");
       return;
     }
 
+    const totalPrice = selectedSeats.length * 200; // price per seat
+    const showtime = {
+      theater: "Main Theater",
+      time: selectedTime,
+      date: selectedDate,
+    };
+
+    const payload = {
+      movieId,
+      showtime,
+      seats: selectedSeats,
+      totalPrice,
+    };
+
     try {
-      const totalPrice = selectedSeats.length * 200; // example price per seat
-      const showtime = { theater: "Main Theater", time: selectedTime };
-
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/bookings`, // ✅ fixed URL
-        {
-          movieId,
-          showtime,
-          seats: selectedSeats,
-          totalPrice,
-          date: selectedDate,
+      await axios.post(`${process.env.REACT_APP_API_URL}/bookings`, payload, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      });
 
-      // Update local bookedSeats state
-      setBookedSeats((prev) => ({
+      // Update local booked seats
+      setBookedSeats(prev => ({
         ...prev,
         [selectedTime]: [...prev[selectedTime], ...selectedSeats],
       }));
@@ -62,8 +94,8 @@ export default function Booking() {
       setToastMessage(`Booking successful! Seats: ${selectedSeats.join(", ")}`);
       setSelectedSeats([]);
       setSelectedTime("");
-      setSelectedDate("");
     } catch (err) {
+      console.error("Booking error:", err.response?.data || err.message);
       setToastMessage(err.response?.data?.message || "Booking failed!");
     }
   };
@@ -74,7 +106,7 @@ export default function Booking() {
       return;
     }
     if (selectedSeats.includes(seat)) {
-      setSelectedSeats(selectedSeats.filter((s) => s !== seat));
+      setSelectedSeats(selectedSeats.filter(s => s !== seat));
     } else {
       setSelectedSeats([...selectedSeats, seat]);
     }
@@ -89,7 +121,7 @@ export default function Booking() {
 
         {/* Date Selection */}
         <div className="flex flex-wrap justify-center gap-2 mb-6 text-xs md:text-sm">
-          {next5Dates.map((d) => {
+          {next5Dates.map(d => {
             const dateStr = d.toISOString().split("T")[0];
             return (
               <button
@@ -119,7 +151,7 @@ export default function Booking() {
               <h3 className="text-lg md:text-xl font-bold text-red-400 mb-3 text-center tracking-wider drop-shadow-md">
                 Show Timings 🎬
               </h3>
-              {showTimings.map((time) => (
+              {showTimings.map(time => (
                 <button
                   key={time}
                   onClick={() => {
@@ -166,9 +198,7 @@ export default function Booking() {
                   selectedSeats={selectedSeats}
                   onSelect={setSelectedSeats}
                   bookedSeats={bookedSeats[selectedTime]}
-                  onSeatClick={(seat) =>
-                    handleSeatClick(seat, bookedSeats[selectedTime])
-                  }
+                  onSeatClick={seat => handleSeatClick(seat, bookedSeats[selectedTime])}
                 />
               ) : (
                 <p className="text-gray-300 mt-10 text-center md:mt-20">
