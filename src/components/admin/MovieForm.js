@@ -1,3 +1,4 @@
+// src/components/admin/MovieForm.js
 import React, { useState, useEffect } from "react";
 
 const MovieForm = ({ movie, onSave, onCancel }) => {
@@ -37,20 +38,36 @@ const MovieForm = ({ movie, onSave, onCancel }) => {
   };
 
   return (
-    <div className="p-6 border mb-6 bg-black rounded-xl shadow-xl text-white max-w-md mx-auto">
+    <div className="p-6 mb-6 bg-black rounded-xl shadow-xl text-white max-w-md mx-auto">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input name="title" value={formData.title} onChange={handleChange} placeholder="Title" required className="input" />
-        <input name="genre" value={formData.genre} onChange={handleChange} placeholder="Genre" required className="input" />
-        <input name="poster" value={formData.poster} onChange={handleChange} placeholder="Poster URL" required className="input" />
-        <input name="duration" value={formData.duration} onChange={handleChange} placeholder="Duration" required className="input" />
-        <input name="trailer" value={formData.trailer} onChange={handleChange} placeholder="Trailer URL" className="input" />
-        <input name="description" value={formData.description} onChange={handleChange} placeholder="Description" className="input" />
-        <input name="language" value={formData.language} onChange={handleChange} placeholder="Language" className="input" />
-        <input name="releaseDate" value={formData.releaseDate} onChange={handleChange} placeholder="Release Date" className="input" />
+        {/** Input fields */}
+        {Object.keys(formData).map((key) => (
+          <input
+            key={key}
+            name={key}
+            value={formData[key]}
+            onChange={handleChange}
+            placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
+            className="bg-gray-900 text-white border border-gray-700 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-red-600"
+            required={key !== "trailer" && key !== "description" && key !== "language" && key !== "releaseDate"}
+          />
+        ))}
 
-        <div className="flex justify-between gap-4">
-          <button type="submit" className="bg-red-600 px-6 py-2 rounded-lg">Save</button>
-          <button type="button" onClick={onCancel} className="bg-gray-800 px-6 py-2 rounded-lg">Cancel</button>
+        {/** Buttons */}
+        <div className="flex justify-between gap-4 mt-2">
+          <button
+            type="submit"
+            className="bg-red-600 hover:bg-red-700 transition px-6 py-2 rounded-lg font-medium"
+          >
+            Save
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="bg-gray-800 hover:bg-gray-700 transition px-6 py-2 rounded-lg font-medium"
+          >
+            Cancel
+          </button>
         </div>
       </form>
     </div>
