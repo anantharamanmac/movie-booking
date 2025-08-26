@@ -1,3 +1,4 @@
+// Navbar.js
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
@@ -53,7 +54,7 @@ function Navbar() {
       <div className="hidden md:flex justify-between items-center w-full lg:w-4/5 mx-auto px-4 py-3 relative">
         {/* Logo */}
         <div className={`transition-opacity duration-500 ${hideSides ? "opacity-0" : "opacity-100"}`}>
-          <h1 className="text-2xl font-bold text-red-600 drop-shadow-md">🎬 MovieBook</h1>
+          <h1 className="text-2xl font-bold text-red-600 drop-shadow-md">🎫 TicketWala</h1>
         </div>
 
         {/* Center Links */}
@@ -92,7 +93,7 @@ function Navbar() {
 
       {/* Mobile Navbar */}
       <div className="flex md:hidden justify-between items-center bg-black px-4 py-3">
-        <h1 className="text-2xl font-bold text-red-600">🎬</h1>
+        <h1 className="text-2xl font-bold text-red-600">🎫 TicketWala</h1>
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <HiX className="text-2xl text-red-600" /> : <HiMenu className="text-2xl text-red-600" />}
         </button>
@@ -122,4 +123,3 @@ function Navbar() {
 }
 
 export default Navbar;
- 
