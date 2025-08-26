@@ -1,4 +1,3 @@
-// Navbar.js
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
@@ -54,7 +53,10 @@ function Navbar() {
       <div className="hidden md:flex justify-between items-center w-full lg:w-4/5 mx-auto px-4 py-3 relative">
         {/* Logo */}
         <div className={`transition-opacity duration-500 ${hideSides ? "opacity-0" : "opacity-100"}`}>
-          <h1 className="text-2xl font-bold text-red-600 drop-shadow-md">🎫 TicketWala</h1>
+          <Link to="/" className="flex items-center space-x-3">
+            <img src="/logo512.png" alt="TicketWala" className="h-16 w-auto" />
+            <span className="text-3xl font-bold text-red-600 drop-shadow-md">TicketWala</span>
+          </Link>
         </div>
 
         {/* Center Links */}
@@ -93,7 +95,10 @@ function Navbar() {
 
       {/* Mobile Navbar */}
       <div className="flex md:hidden justify-between items-center bg-black px-4 py-3">
-        <h1 className="text-2xl font-bold text-red-600">🎫 TicketWala</h1>
+        <Link to="/" className="flex items-center space-x-2">
+          <img src="/logo512.png" alt="TicketWala" className="h-12 w-auto" />
+          <span className="text-xl font-bold text-red-600">TicketWala</span>
+        </Link>
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
           {mobileMenuOpen ? <HiX className="text-2xl text-red-600" /> : <HiMenu className="text-2xl text-red-600" />}
         </button>
