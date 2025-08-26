@@ -1,4 +1,3 @@
-// src/components/HeroSection.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -9,15 +8,15 @@ const HeroSection = () => {
   const { showLoader, hideLoader } = useLoader();
   const [trendingShows, setTrendingShows] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [fade, setFade] = useState(true);
 
-  const API_URL = process.env.REACT_APP_API_URL; // use env variable
+  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchTrending = async () => {
       try {
         showLoader();
         const { data } = await axios.get(`${API_URL}/movies`);
-        // pick top 5 for hero section
         setTrendingShows(data.slice(0, 5));
       } catch (error) {
         console.error("Failed to fetch trending shows:", error);
@@ -29,12 +28,18 @@ const HeroSection = () => {
     fetchTrending();
   }, [API_URL, showLoader, hideLoader]);
 
-  // auto slide
+  // Auto slide with fade
   useEffect(() => {
     if (trendingShows.length === 0) return;
+
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % trendingShows.length);
+      setFade(false); // start fade out
+      setTimeout(() => {
+        setCurrentIndex((prev) => (prev + 1) % trendingShows.length);
+        setFade(true); // fade in new image + text
+      }, 500); // fade duration
     }, 5000);
+
     return () => clearInterval(interval);
   }, [trendingShows]);
 
@@ -48,7 +53,9 @@ const HeroSection = () => {
       <img
         src={currentShow.poster}
         alt={currentShow.title}
-        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-100"
+        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+          fade ? "opacity-100" : "opacity-0"
+        }`}
       />
 
       {/* Fades */}
@@ -56,8 +63,12 @@ const HeroSection = () => {
       <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/90 to-transparent"></div>
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/90 to-transparent"></div>
 
-      {/* Overlay content */}
-      <div className="absolute inset-0 flex flex-col justify-center items-start px-6 sm:px-12 md:px-16 text-white">
+      {/* Overlay content with fade */}
+      <div
+        className={`absolute inset-0 flex flex-col justify-center items-start px-6 sm:px-12 md:px-16 text-white transition-opacity duration-500 ${
+          fade ? "opacity-100" : "opacity-0"
+        }`}
+      >
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
           {currentShow.title}
         </h1>
@@ -77,7 +88,13 @@ const HeroSection = () => {
             <div
               key={show._id}
               className="cursor-pointer text-white font-medium text-sm sm:text-base md:text-lg"
-              onClick={() => setCurrentIndex(index)}
+              onClick={() => {
+                setFade(false);
+                setTimeout(() => {
+                  setCurrentIndex(index);
+                  setFade(true);
+                }, 500);
+              }}
             >
               <span
                 className={`transition-all duration-500 ${
